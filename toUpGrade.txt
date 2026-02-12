@@ -1,29 +1,8 @@
-Migrar JSON antiguos a Mongo
-Script que importa todo /uploads y cifra automáticamente.
-
-Filtros y búsqueda
-Buscar por concepto, rango de fechas, importes, texto libre.
-
 Categorías y etiquetas
 Clasificar movimientos (supermercado, ocio, etc.) con resumen por categoría.
 
-Dashboard mensual
-Gráficas de ingresos/gastos y saldo acumulado (Chart.js).
-
-Presupuestos
-Definir límites por categoría y alertas si se supera.
-
-Exportaciones
-CSV/Excel por mes, por categoría o con filtros aplicados.
-
-Multi-cuenta / multi-banco
-Separar movimientos por cuenta y ver balances por cuenta.
-
 Autenticación simple
 Login básico para proteger tus datos (JWT o sesión).
-
-Backups automáticos
-Copias de seguridad en Mongo (export) o archivo.
 
 Mejoras UX
 Buscador instantáneo, ordenaciones por columnas, paginado.
