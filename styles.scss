@@ -265,6 +265,70 @@ body {
       }
     }
 
+    &.card-years {
+      margin-top: 2rem;
+
+      h2 {
+        font-size: 1.5rem;
+        color: $secondary-color-text;
+      }
+
+      @media (max-width: 640px) {
+        h2 {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .year-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .year-header button {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid $main-color-bg;
+      background: #fff;
+      color: $main-color-bg;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .year-label {
+      margin: 0.75rem 0 0.5rem;
+      color: $secondary-color-text;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    .year-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .year-item {
+      display: inline-flex;
+    }
+
+    .year-button {
+      border: 1px solid $main-color-bg;
+      background: #fff;
+      color: $main-color-bg;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .year-item.is-active .year-button {
+      background: $main-color-bg;
+      color: $main-color-text;
+    }
+
     &.card-dashboard {
       margin-top: 0;
 

@@ -225,6 +225,60 @@ body .card.card-secondary .uploads-list .movement-amount.is-negative {
 body .card.card-secondary .uploads-list .movement-amount.is-positive {
   color: #2e7d32;
 }
+body .card.card-years {
+  margin-top: 2rem;
+}
+body .card.card-years h2 {
+  font-size: 1.5rem;
+  color: #333;
+}
+@media (max-width: 640px) {
+  body .card.card-years h2 {
+    font-size: 1.25rem;
+  }
+}
+body .card .year-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+body .card .year-header button {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid #005e2a;
+  background: #fff;
+  color: #005e2a;
+  font-weight: 600;
+  cursor: pointer;
+}
+body .card .year-label {
+  margin: 0.75rem 0 0.5rem;
+  color: #333;
+  font-size: 0.95rem;
+  display: none;
+}
+body .card .year-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+body .card .year-item {
+  display: inline-flex;
+}
+body .card .year-button {
+  border: 1px solid #005e2a;
+  background: #fff;
+  color: #005e2a;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+body .card .year-item.is-active .year-button {
+  background: #005e2a;
+  color: #fff;
+}
 body .card.card-dashboard {
   margin-top: 0;
 }
@@ -358,13 +412,13 @@ body .card .stat-value {
   font-weight: 700;
   color: #005e2a;
 }
-body .logout-fab {
+body .card .logout-fab {
   position: fixed;
   right: 1.25rem;
   bottom: 1.25rem;
   z-index: 50;
 }
-body .logout-button {
+body .card .logout-button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -377,7 +431,7 @@ body .logout-button {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
   cursor: pointer;
 }
-body .logout-icon {
+body .card .logout-icon {
   width: 18px;
   height: 18px;
   display: inline-block;
@@ -386,14 +440,14 @@ body .logout-icon {
   background-repeat: no-repeat;
 }
 @media (max-width: 640px) {
-  body .logout-button {
+  body .card .logout-button {
     padding: 0.7rem;
   }
-  body .logout-text {
+  body .card .logout-text {
     display: none;
   }
 }
-body .logout-button:hover {
+body .card .logout-button:hover {
   background: #f2f7f4;
 }
 body .card.card-terciary {

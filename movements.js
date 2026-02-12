@@ -1,6 +1,12 @@
-const formatFileName = (fileName) => {
-  const baseName = String(fileName ?? "")
+const getMonthKeyFromFileName = (fileName) =>
+  String(fileName ?? "")
+    .replace(/^movimientos-\d{4}-/, "")
+    .replace(/^movimientos-/, "")
     .replace(/\.json$/i, "")
+    .trim();
+
+const formatFileName = (fileName) => {
+  const baseName = getMonthKeyFromFileName(fileName)
     .replace(/[_-]+/g, " ")
     .trim();
 
@@ -297,9 +303,7 @@ const renderUploadsList = (listEl, files) => {
   ];
 
   const getMonthIndex = (fileName) => {
-    const baseName = String(fileName)
-      .replace(/^movimientos-/, "")
-      .replace(/\.json$/i, "")
+    const baseName = getMonthKeyFromFileName(fileName)
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase();

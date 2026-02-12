@@ -20,6 +20,7 @@ const AUTH_TOKEN = APP_PASSWORD
 
 let mongoDb = null;
 let movementsCollection = null;
+let yearsCollection = null;
 
 const ENCRYPTION_ALGO = "aes-256-gcm";
 const ENCRYPTION_IV_LENGTH = 12;
@@ -145,6 +146,53 @@ app.post("/logout", (_req, res) => {
   return res.redirect("/login");
 });
 
+app.get("/years", async (_req, res) => {
+  try {
+    if (!requireMongo(res)) {
+      return;
+    }
+    const yearsFromMovements = await movementsCollection.distinct("year");
+    const yearsFromCollection = yearsCollection
+      ? await yearsCollection.distinct("year")
+      : [];
+    const combined = [...yearsFromMovements, ...yearsFromCollection]
+      .map((value) => normalizeYear(value))
+      .filter(Boolean);
+
+    const uniqueYears = Array.from(new Set(combined));
+    if (!uniqueYears.length) {
+      uniqueYears.push(getCurrentYear());
+    }
+
+    uniqueYears.sort((a, b) => a - b);
+    return res.json({ years: uniqueYears });
+  } catch (error) {
+    return res.status(500).json({ error: "No se pudieron listar anos" });
+  }
+});
+
+app.post("/years", async (req, res) => {
+  try {
+    if (!requireMongo(res)) {
+      return;
+    }
+    const year = normalizeYear(req.body?.year);
+    if (!year) {
+      return res.status(400).json({ error: "Ano invalido" });
+    }
+    if (yearsCollection) {
+      await yearsCollection.updateOne(
+        { year },
+        { $set: { year, createdAt: new Date() } },
+        { upsert: true }
+      );
+    }
+    return res.json({ year });
+  } catch (error) {
+    return res.status(500).json({ error: "No se pudo crear el ano" });
+  }
+});
+
 const sanitizeMonth = (value) =>
   String(value ?? "")
     .toLowerCase()
@@ -152,10 +200,29 @@ const sanitizeMonth = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9-]/g, "");
 
-const buildFileName = (monthKey) => `movimientos-${monthKey}.json`;
+const getCurrentYear = () => new Date().getFullYear();
+
+const normalizeYear = (value) => {
+  const year = Number(value);
+  if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+    return null;
+  }
+  return year;
+};
+
+const buildFileName = (monthKey, yearValue) => {
+  const year = normalizeYear(yearValue) ?? getCurrentYear();
+  return `movimientos-${year}-${monthKey}.json`;
+};
+
+const parseYearFromFileName = (fileName) => {
+  const match = String(fileName ?? "").match(/^movimientos-(\d{4})-/);
+  return match ? normalizeYear(match[1]) : null;
+};
 
 const parseMonthKeyFromFileName = (fileName) =>
   String(fileName ?? "")
+    .replace(/^movimientos-\d{4}-/, "")
     .replace(/^movimientos-/, "")
     .replace(/\.json$/i, "")
     .trim();
@@ -174,6 +241,17 @@ const requireEncryptionKey = (res) => {
     return false;
   }
   return true;
+};
+
+const buildYearQuery = (yearValue) => {
+  const year = normalizeYear(yearValue);
+  if (!year) {
+    return {};
+  }
+  if (year === getCurrentYear()) {
+    return { $or: [{ year }, { year: { $exists: false } }] };
+  }
+  return { year };
 };
 
 const encryptMovements = (movements) => {
@@ -228,26 +306,28 @@ const getMovementsFromDoc = (doc) => {
   return [];
 };
 
-const writeMovements = async (month, encryptedMovements) => {
+const writeMovements = async (month, year, encryptedMovements) => {
   const monthKey = sanitizeMonth(month);
+  const normalizedYear = normalizeYear(year) ?? getCurrentYear();
   await movementsCollection.updateOne(
-    { monthKey },
+    { monthKey, year: normalizedYear },
     {
       $set: {
         month,
         monthKey,
+        year: normalizedYear,
         encryptedMovements,
         updatedAt: new Date(),
       },
     },
     { upsert: true }
   );
-  return buildFileName(monthKey);
+  return buildFileName(monthKey, normalizedYear);
 };
 
 app.post("/upload", async (req, res) => {
   try {
-    const { data, month } = req.body;
+    const { data, month, year } = req.body;
     if (!Array.isArray(data)) {
       return res.status(400).json({ error: "Formato invalido" });
     }
@@ -264,30 +344,35 @@ app.post("/upload", async (req, res) => {
       return;
     }
 
-    if (!requireEncryptionKey(res)) {
-      return;
-    }
+    const normalizedYear = normalizeYear(year) ?? getCurrentYear();
 
     const encryptedMovements = encryptMovements(data);
-    const fileName = await writeMovements(month, encryptedMovements);
+    const fileName = await writeMovements(
+      month,
+      normalizedYear,
+      encryptedMovements
+    );
     return res.json({ fileName, rows: data.length });
   } catch (error) {
     return res.status(500).json({ error: "No se pudo guardar el archivo" });
   }
 });
 
-app.get("/uploads", async (_req, res) => {
+app.get("/uploads", async (req, res) => {
   try {
     if (!requireMongo(res)) {
       return;
     }
 
+    const year = normalizeYear(req.query.year) ?? getCurrentYear();
+    const yearQuery = buildYearQuery(year);
+
     const docs = await movementsCollection
-      .find({}, { projection: { monthKey: 1 } })
+      .find(yearQuery, { projection: { monthKey: 1, year: 1 } })
       .toArray();
 
     const files = docs
-      .map((doc) => buildFileName(doc.monthKey))
+      .map((doc) => buildFileName(doc.monthKey, doc.year ?? year))
       .sort((a, b) => a.localeCompare(b));
 
     return res.json({ files });
@@ -308,7 +393,13 @@ app.get("/uploads/:fileName", async (req, res) => {
     }
 
     const monthKey = parseMonthKeyFromFileName(requested);
-    const doc = await movementsCollection.findOne({ monthKey });
+    const parsedYear = parseYearFromFileName(requested);
+    const year = parsedYear ?? normalizeYear(req.query.year) ?? getCurrentYear();
+    const yearQuery = buildYearQuery(year);
+    const doc = await movementsCollection.findOne({
+      monthKey,
+      ...yearQuery,
+    });
     if (!doc) {
       return res.status(404).json({ error: "Archivo no encontrado" });
     }
@@ -331,7 +422,13 @@ app.delete("/uploads/:fileName", async (req, res) => {
     }
 
     const monthKey = parseMonthKeyFromFileName(requested);
-    const result = await movementsCollection.deleteOne({ monthKey });
+    const parsedYear = parseYearFromFileName(requested);
+    const year = parsedYear ?? normalizeYear(req.query.year) ?? getCurrentYear();
+    const yearQuery = buildYearQuery(year);
+    const result = await movementsCollection.deleteOne({
+      monthKey,
+      ...yearQuery,
+    });
     if (!result.deletedCount) {
       return res.status(404).json({ error: "Archivo no encontrado" });
     }
@@ -355,6 +452,7 @@ const parseAmount = (value) => {
 
 const formatMonthLabel = (fileName) => {
   const baseName = String(fileName)
+    .replace(/^movimientos-\d{4}-/, "")
     .replace(/^movimientos-/, "")
     .replace(/\.json$/i, "")
     .replace(/[_-]+/g, " ")
@@ -388,6 +486,7 @@ const MONTH_ORDER = [
 
 const getMonthIndex = (fileName) => {
   const baseName = String(fileName)
+    .replace(/^movimientos-\d{4}-/, "")
     .replace(/^movimientos-/, "")
     .replace(/\.json$/i, "")
     .normalize("NFD")
@@ -409,13 +508,18 @@ app.get("/export-summary", async (_req, res) => {
       return;
     }
 
+    const year = normalizeYear(_req.query.year) ?? getCurrentYear();
+    const yearQuery = buildYearQuery(year);
+
     const docs = await movementsCollection
-      .find({}, { projection: { monthKey: 1, month: 1, encryptedMovements: 1 } })
+      .find(yearQuery, {
+        projection: { monthKey: 1, month: 1, encryptedMovements: 1, year: 1 },
+      })
       .toArray();
 
     const docsSorted = docs.sort((a, b) => {
-      const indexA = getMonthIndex(buildFileName(a.monthKey));
-      const indexB = getMonthIndex(buildFileName(b.monthKey));
+      const indexA = getMonthIndex(buildFileName(a.monthKey, a.year ?? year));
+      const indexB = getMonthIndex(buildFileName(b.monthKey, b.year ?? year));
       if (indexA !== indexB) {
         return indexA - indexB;
       }
@@ -458,7 +562,7 @@ app.get("/export-summary", async (_req, res) => {
       totalDifference += diferencia;
 
       const row = sheet.addRow({
-        mes: formatMonthLabel(buildFileName(doc.monthKey)),
+        mes: formatMonthLabel(buildFileName(doc.monthKey, doc.year ?? year)),
         saldoInicial,
         saldoFinal,
         diferencia,
@@ -510,6 +614,7 @@ const startServer = async () => {
   await client.connect();
   mongoDb = client.db(MONGODB_DB);
   movementsCollection = mongoDb.collection("movements");
+  yearsCollection = mongoDb.collection("years");
 
   app.listen(port, () => {
     console.log(`Servidor listo en http://localhost:${port}`);

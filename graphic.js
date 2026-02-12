@@ -44,6 +44,7 @@
 
   const getMonthKeyFromFile = (fileName) =>
     String(fileName ?? "")
+      .replace(/^movimientos-\d{4}-/, "")
       .replace(/^movimientos-/, "")
       .replace(/\.json$/i, "")
       .trim();

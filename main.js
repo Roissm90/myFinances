@@ -3,6 +3,11 @@ const excelInput = document.getElementById("excelInput");
 const monthSelect = document.getElementById("monthSelect");
 const uploadsList = document.getElementById("uploadsList");
 const downloadSummary = document.getElementById("downloadSummary");
+const yearList = document.getElementById("yearList");
+const addYearButton = document.getElementById("addYearButton");
+const currentYearLabel = document.getElementById("currentYearLabel");
+
+let selectedYear = new Date().getFullYear();
 
 const HEADER_KEYS = [
   "fecha operacion",
@@ -86,7 +91,7 @@ const extractMovementsFromHtml = (htmlText) => {
 
 const fetchUploads = async () => {
   try {
-    const response = await fetch("/uploads");
+    const response = await fetch(`/uploads?year=${selectedYear}`);
     if (!response.ok) {
       throw new Error("Error al listar uploads");
     }
@@ -99,6 +104,72 @@ const fetchUploads = async () => {
   } catch (error) {
     console.error(error);
   }
+};
+
+const updateYearLabel = () => {
+  if (currentYearLabel) {
+    currentYearLabel.textContent = `Ano actual: ${selectedYear}`;
+  }
+};
+
+const renderYearList = (years) => {
+  if (!yearList) {
+    return;
+  }
+  yearList.innerHTML = "";
+  years.forEach((year) => {
+    const li = document.createElement("li");
+    li.className = "year-item";
+    if (year === selectedYear) {
+      li.classList.add("is-active");
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "year-button";
+    button.dataset.year = year;
+    button.textContent = year;
+    li.appendChild(button);
+    yearList.appendChild(li);
+  });
+};
+
+const fetchYears = async () => {
+  try {
+    const response = await fetch("/years");
+    if (!response.ok) {
+      throw new Error("Error al listar anos");
+    }
+    const data = await response.json();
+    const years = Array.isArray(data.years) ? data.years : [];
+    if (years.length) {
+      if (!years.includes(selectedYear)) {
+        const currentYear = new Date().getFullYear();
+        selectedYear = years.includes(currentYear) ? currentYear : years[0];
+      }
+    }
+    renderYearList(years);
+    updateYearLabel();
+    await fetchUploads();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const setSelectedYear = async (yearValue) => {
+  const year = Number(yearValue);
+  if (!Number.isInteger(year)) {
+    return;
+  }
+  selectedYear = year;
+  updateYearLabel();
+  if (yearList) {
+    yearList.querySelectorAll(".year-item").forEach((item) => {
+      const button = item.querySelector(".year-button");
+      item.classList.toggle("is-active", Number(button?.dataset.year) === year);
+    });
+  }
+  await fetchUploads();
 };
 
 const updateDownloadState = (filesOrCount) => {
@@ -125,10 +196,51 @@ importButton.addEventListener("click", () => {
 
 monthSelect.addEventListener("change", updateImportState);
 
+if (yearList) {
+  yearList.addEventListener("click", (event) => {
+    const button = event.target.closest(".year-button");
+    if (!button) {
+      return;
+    }
+    setSelectedYear(button.dataset.year);
+  });
+}
+
+if (addYearButton) {
+  addYearButton.addEventListener("click", async () => {
+    const defaultYear = new Date().getFullYear() + 1;
+    const input = window.prompt("Ano nuevo", String(defaultYear));
+    if (!input) {
+      return;
+    }
+    const year = Number(input);
+    if (!Number.isInteger(year)) {
+      console.warn("Ano invalido");
+      return;
+    }
+    try {
+      const response = await fetch("/years", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ year }),
+      });
+      if (!response.ok) {
+        throw new Error("No se pudo crear el ano");
+      }
+      await fetchYears();
+      await setSelectedYear(year);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+}
+
 if (downloadSummary) {
   downloadSummary.addEventListener("click", async () => {
     try {
-      const response = await fetch("/export-summary");
+      const response = await fetch(`/export-summary?year=${selectedYear}`);
       if (!response.ok) {
         throw new Error("Error al generar el Excel");
       }
@@ -190,7 +302,11 @@ excelInput.addEventListener("change", (event) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: movements, month: monthSelect.value }),
+        body: JSON.stringify({
+          data: movements,
+          month: monthSelect.value,
+          year: selectedYear,
+        }),
       });
 
       if (!response.ok) {
@@ -212,7 +328,7 @@ excelInput.addEventListener("change", (event) => {
   reader.readAsArrayBuffer(file);
 });
 
-fetchUploads();
+fetchYears();
 updateImportState();
 window.uploadsUI.setupUploadsList(uploadsList);
 updateDownloadState(0);
