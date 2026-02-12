@@ -12,6 +12,7 @@ const HEADER_KEYS = [
   "saldo",
 ];
 
+
 const normalizeText = (value) =>
   String(value ?? "")
     .replace(/\s+/g, " ")
@@ -22,6 +23,7 @@ const normalizeKey = (value) =>
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+
 
 const extractMovementsFromRows = (rows) => {
   let headerRowIndex = -1;
@@ -91,6 +93,9 @@ const fetchUploads = async () => {
     const data = await response.json();
     window.uploadsUI.renderUploadsList(uploadsList, data.files || []);
     updateDownloadState(data.files);
+    if (window.dashboardUI?.updateDashboard) {
+      window.dashboardUI.updateDashboard(data.files || []);
+    }
   } catch (error) {
     console.error(error);
   }

@@ -225,6 +225,117 @@ body .card.card-secondary .uploads-list .movement-amount.is-negative {
 body .card.card-secondary .uploads-list .movement-amount.is-positive {
   color: #2e7d32;
 }
+body .card.card-dashboard {
+  margin-top: 0;
+}
+body .card.card-dashboard h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+@media (max-width: 640px) {
+  body .card.card-dashboard h2 {
+    font-size: 1.25rem;
+  }
+}
+body .card .dashboard-status {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+@media (max-width: 640px) {
+  body .card .dashboard-status {
+    font-size: 0.85rem;
+  }
+}
+body .card .dashboard-slider {
+  display: flex;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+body .card .slider-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #005e2a;
+  font-size: 1.2rem;
+  cursor: pointer;
+  position: absolute;
+}
+body .card .slider-button#dashboardPrev {
+  left: -1rem;
+}
+body .card .slider-button#dashboardPrev::before {
+  content: "<";
+  width: 100%;
+  display: block;
+  text-align: left;
+}
+body .card .slider-button#dashboardNext {
+  right: -1rem;
+}
+body .card .slider-button#dashboardNext::before {
+  content: ">";
+  width: 100%;
+  display: block;
+  text-align: right;
+}
+body .card .slider-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+body .card .dashboard-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  gap: 1rem;
+  overflow: hidden;
+  scroll-snap-type: x mandatory;
+  width: 100%;
+  margin: 0 auto;
+}
+body .card .dashboard-slide {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  scroll-snap-align: center;
+  min-height: 260px;
+}
+body .card .dashboard-slide-title {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+body .card .dashboard-chart {
+  min-height: 200px;
+}
+body .card .dashboard-stats {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+body .card .stat {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+}
+body .card .stat-label {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 0.35rem;
+}
+body .card .stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #005e2a;
+}
 body .card.card-terciary {
   margin-top: 0;
   padding-top: 1rem;

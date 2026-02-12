@@ -38,6 +38,33 @@
         </div>
       </div>
     </div>
+    <div class="card card-dashboard">
+      <h2>Dashboard mensual</h2>
+      <p id="dashboardStatus" class="dashboard-status">Cargando resumen...</p>
+      <div class="dashboard-slider">
+        <button class="slider-button" id="dashboardPrev" type="button" aria-label="Mes anterior">
+          
+        </button>
+        <div class="dashboard-track" id="dashboardTrack"></div>
+        <button class="slider-button" id="dashboardNext" type="button" aria-label="Mes siguiente">
+          
+        </button>
+      </div>
+      <div class="dashboard-stats" id="dashboardStats">
+        <div class="stat">
+          <p class="stat-label">Ingresos</p>
+          <p class="stat-value" id="totalIncome">-</p>
+        </div>
+        <div class="stat">
+          <p class="stat-label">Gastos</p>
+          <p class="stat-value" id="totalExpenses">-</p>
+        </div>
+        <div class="stat">
+          <p class="stat-label">Neto</p>
+          <p class="stat-value" id="totalNet">-</p>
+        </div>
+      </div>
+    </div>
     <div class="card card-secondary">
       <h2>Meses</h2>
       <div class="list-wrap">
@@ -68,7 +95,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="movements.js"></script>
+    <script src="graphic.js"></script>
     <script src="main.js"></script>
   </body>
 </html>

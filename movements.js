@@ -365,6 +365,11 @@ const updateEmptyState = (listEl) => {
   }
 };
 
+const getCurrentFiles = (listEl) =>
+  Array.from(listEl.querySelectorAll(".uploads-item")).map(
+    (item) => item.dataset.file
+  );
+
 const deleteUpload = async (fileName) => {
   if (!fileName) {
     throw new Error("Archivo no especificado");
@@ -449,6 +454,9 @@ if (confirmDeleteButton) {
         if (window.updateDownloadState) {
           const remaining = uploadsList.querySelectorAll(".uploads-item").length;
           window.updateDownloadState(remaining);
+        }
+        if (window.dashboardUI?.updateDashboard) {
+          window.dashboardUI.updateDashboard(getCurrentFiles(uploadsList));
         }
       })
       .catch((error) => {
