@@ -64,23 +64,24 @@ const renderLoginPage = (message) => `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mis Finanzas - Login</title>
     <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: system-ui, sans-serif; background: #afcfbd; margin: 0; }
       .wrap { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
-      .card { width: min(420px, 100%); background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+      .card { width: 100%; max-width: 480px; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
       h1 { margin: 0 0 1rem; color: #333; font-size: 1.5rem; }
       label { display: block; margin-bottom: 0.35rem; color: #333; }
       input { width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #005e2a; border-radius: 6px; font-size: 1rem; }
       button { width: 100%; margin-top: 1rem; padding: 0.65rem; background: #005e2a; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
-      .message { margin: 0 0 1rem; color: #c62828; font-size: 0.95rem; }
+      .message { margin: 1rem 0 0; color: #c62828; font-size: 0.95rem; }
     </style>
   </head>
   <body>
     <div class="wrap">
       <form class="card" method="post" action="/login">
         <h1>Acceso</h1>
-        ${message ? `<p class="message">${message}</p>` : ""}
-        <label for="password">Contrasena</label>
+        <label for="password">Contraseña</label>
         <input id="password" name="password" type="password" required />
+        ${message ? `<p class="message">${message}</p>` : ""}
         <button type="submit">Entrar</button>
       </form>
     </div>
@@ -136,7 +137,7 @@ app.post("/login", (req, res) => {
     });
     return res.redirect("/");
   }
-  return res.status(401).send(renderLoginPage("Contrasena incorrecta"));
+  return res.status(401).send(renderLoginPage("Contraseña incorrecta"));
 });
 
 app.post("/logout", (_req, res) => {
