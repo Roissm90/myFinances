@@ -62,10 +62,17 @@ const hideConceptTooltip = () => {
   tooltipEl.classList.remove("is-visible");
 };
 
+const findMovementConcept = (eventTarget) => {
+  if (!(eventTarget instanceof Element)) {
+    return null;
+  }
+  return eventTarget.closest(".movement-concept");
+};
+
 document.addEventListener(
   "mouseenter",
   (event) => {
-    const target = event.target.closest(".movement-concept");
+    const target = findMovementConcept(event.target);
     if (target) {
       showConceptTooltip(target);
     }
@@ -76,7 +83,7 @@ document.addEventListener(
 document.addEventListener(
   "mouseleave",
   (event) => {
-    const target = event.target.closest(".movement-concept");
+    const target = findMovementConcept(event.target);
     if (target) {
       hideConceptTooltip();
     }
