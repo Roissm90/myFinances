@@ -32,7 +32,7 @@ body {
 
   .card {
     max-width: 991px;
-    margin: 0 auto 0;
+    margin: 110px auto 0;
     padding: 1rem 2rem 1rem;
 
     h1 {
@@ -266,11 +266,30 @@ body {
     }
 
     &.card-years {
-      margin-top: 2rem;
+      position: fixed;
+      width: 100vw;
+      max-width: 991px;
+      box-shadow: 0px -5px 10px 10px #33333380;
+      top: 0;
+      left: 50%; 
+      transform: translateX(-50%);
+      background-color: $secondary-color-bg; 
+      padding: 1rem 2rem; 
+      z-index: 10;
+      margin-top: 0;
 
       h2 {
         font-size: 1.5rem;
         color: $secondary-color-text;
+      }
+
+      @media (min-width: 992px) {
+        max-width: none;
+
+        .year-header, .year-list {
+          max-width: calc(991px - 4rem);
+          margin: 0 auto 1rem;
+        }
       }
 
       @media (max-width: 640px) {
@@ -286,6 +305,7 @@ body {
       justify-content: space-between;
       gap: 1rem;
       margin-bottom: 1rem;
+      position: relative;
     }
 
     .year-header button {
@@ -296,6 +316,13 @@ body {
       color: $main-color-bg;
       font-weight: 600;
       cursor: pointer;
+      position: absolute;
+      bottom: -3rem;
+      right: 0;
+
+      @media (max-width: 991px) {
+        bottom: -0.5rem;
+      }
     }
 
     .year-label {
@@ -506,7 +533,7 @@ body {
     background: #fff;
     color: $main-color-bg;
     font-weight: 600;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 10px 20px #33333380;
     cursor: pointer;
   }
 
@@ -572,6 +599,30 @@ body {
 .modal-content p {
   margin-bottom: 1.2rem;
   font-size: 0.95rem;
+}
+
+.modal-content form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.modal-content label {
+  font-size: 0.9rem;
+  color: $secondary-color-text;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid $main-color-bg;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.modal-error {
+  min-height: 1.1rem;
+  font-size: 0.85rem;
+  color: $negative-color-text;
 }
 
 .modal-actions {

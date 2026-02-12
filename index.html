@@ -88,6 +88,21 @@
           </button>
         </div>
     </div>
+    <div id="addYearModal" class="modal" aria-hidden="true">
+      <div class="modal-overlay" data-close="true"></div>
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="addYearTitle">
+        <h3 id="addYearTitle">Agregar año</h3>
+        <form id="addYearForm">
+          <label for="addYearInput"></label>
+          <input id="addYearInput" name="year" type="number" inputmode="numeric" min="1900" max="2100" required />
+          <p id="addYearError" class="modal-error" role="alert"></p>
+          <div class="modal-actions">
+            <button id="cancelAddYear" type="button" class="modal-button">Cancelar</button>
+            <button id="confirmAddYear" type="submit" class="modal-button">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <div id="deleteModal" class="modal" aria-hidden="true">
       <div class="modal-overlay" data-close="true"></div>
       <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">

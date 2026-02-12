@@ -6,6 +6,11 @@ const downloadSummary = document.getElementById("downloadSummary");
 const yearList = document.getElementById("yearList");
 const addYearButton = document.getElementById("addYearButton");
 const currentYearLabel = document.getElementById("currentYearLabel");
+const addYearModal = document.getElementById("addYearModal");
+const addYearForm = document.getElementById("addYearForm");
+const addYearInput = document.getElementById("addYearInput");
+const addYearError = document.getElementById("addYearError");
+const cancelAddYear = document.getElementById("cancelAddYear");
 
 let selectedYear = new Date().getFullYear();
 
@@ -185,6 +190,34 @@ const updateImportState = () => {
   importButton.disabled = !monthSelect.value;
 };
 
+const setAddYearError = (message) => {
+  if (addYearError) {
+    addYearError.textContent = message;
+  }
+};
+
+const openAddYearModal = () => {
+  if (!addYearModal || !addYearInput) {
+    return;
+  }
+  const defaultYear = new Date().getFullYear() + 1;
+  addYearInput.value = String(defaultYear);
+  setAddYearError("");
+  addYearModal.classList.add("is-open");
+  addYearModal.setAttribute("aria-hidden", "false");
+  addYearInput.focus();
+  addYearInput.select();
+};
+
+const closeAddYearModal = () => {
+  if (!addYearModal) {
+    return;
+  }
+  addYearModal.classList.remove("is-open");
+  addYearModal.setAttribute("aria-hidden", "true");
+  setAddYearError("");
+};
+
 importButton.addEventListener("click", () => {
   if (!monthSelect.value) {
     console.warn("Selecciona un mes antes de subir el Excel.");
@@ -208,14 +241,16 @@ if (yearList) {
 
 if (addYearButton) {
   addYearButton.addEventListener("click", async () => {
-    const defaultYear = new Date().getFullYear() + 1;
-    const input = window.prompt("Ano nuevo", String(defaultYear));
-    if (!input) {
-      return;
-    }
-    const year = Number(input);
+    openAddYearModal();
+  });
+}
+
+if (addYearForm && addYearInput) {
+  addYearForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const year = Number(addYearInput.value);
     if (!Number.isInteger(year)) {
-      console.warn("Ano invalido");
+      setAddYearError("Ano invalido");
       return;
     }
     try {
@@ -231,11 +266,33 @@ if (addYearButton) {
       }
       await fetchYears();
       await setSelectedYear(year);
+      closeAddYearModal();
     } catch (error) {
       console.error(error);
+      setAddYearError("No se pudo crear el ano");
     }
   });
 }
+
+if (cancelAddYear) {
+  cancelAddYear.addEventListener("click", closeAddYearModal);
+}
+
+if (addYearModal) {
+  const overlay = addYearModal.querySelector("[data-close='true']");
+  if (overlay) {
+    overlay.addEventListener("click", closeAddYearModal);
+  }
+}
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") {
+    return;
+  }
+  if (addYearModal?.classList.contains("is-open")) {
+    closeAddYearModal();
+  }
+});
 
 if (downloadSummary) {
   downloadSummary.addEventListener("click", async () => {
