@@ -289,14 +289,32 @@ body {
       }
     }
 
+    .dashboard-desktop {
+      margin-bottom: 1.25rem;
+
+      @media (max-width: 991px) {
+        display: none;
+      }
+    }
+
+    .dashboard-desktop-chart {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      min-height: 260px;
+    }
+
     .dashboard-slider {
-      display: flex;
+      display: none;
+      @media (max-width: 991px) {
+        display: flex;
+      }
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 0.5rem;
       margin-bottom: 1.25rem;
       position: relative;
-
     }
 
     .slider-button {
@@ -308,13 +326,13 @@ body {
       color: $main-color-bg;
       font-size: 1.2rem;
       cursor: pointer;
-      position: absolute; 
+      position: absolute;
 
       &#dashboardPrev {
         left: -1rem;
 
-        &::before { 
-          content: "<"; 
+        &::before {
+          content: "<";
           width: 100%;
           display: block;
           text-align: left;
@@ -324,8 +342,8 @@ body {
       &#dashboardNext {
         right: -1rem;
 
-        &::before { 
-          content: ">"; 
+        &::before {
+          content: ">";
           width: 100%;
           display: block;
           text-align: right;

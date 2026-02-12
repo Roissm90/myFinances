@@ -41,14 +41,15 @@
     <div class="card card-dashboard">
       <h2>Dashboard mensual</h2>
       <p id="dashboardStatus" class="dashboard-status">Cargando resumen...</p>
+        <div class="dashboard-desktop">
+          <div class="dashboard-desktop-chart">
+            <canvas id="dashboardChartAll" height="140"></canvas>
+          </div>
+        </div>
       <div class="dashboard-slider">
-        <button class="slider-button" id="dashboardPrev" type="button" aria-label="Mes anterior">
-          
-        </button>
+        <button class="slider-button" id="dashboardPrev" type="button" aria-label="Mes anterior"></button>
         <div class="dashboard-track" id="dashboardTrack"></div>
-        <button class="slider-button" id="dashboardNext" type="button" aria-label="Mes siguiente">
-          
-        </button>
+        <button class="slider-button" id="dashboardNext" type="button" aria-label="Mes siguiente"></button>
       </div>
       <div class="dashboard-stats" id="dashboardStats">
         <div class="stat">

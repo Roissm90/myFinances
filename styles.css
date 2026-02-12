@@ -248,8 +248,30 @@ body .card .dashboard-status {
     font-size: 0.85rem;
   }
 }
+body .card .dashboard-desktop {
+  margin-bottom: 1.25rem;
+}
+@media (max-width: 991px) {
+  body .card .dashboard-desktop {
+    display: none;
+  }
+}
+body .card .dashboard-desktop-chart {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1rem;
+  min-height: 260px;
+}
 body .card .dashboard-slider {
-  display: flex;
+  display: none;
+}
+@media (max-width: 991px) {
+  body .card .dashboard-slider {
+    display: flex;
+  }
+}
+body .card .dashboard-slider {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.5rem;

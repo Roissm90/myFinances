@@ -1,5 +1,6 @@
 (() => {
   const dashboardStatus = document.getElementById("dashboardStatus");
+  const dashboardChartAll = document.getElementById("dashboardChartAll");
   const dashboardTrack = document.getElementById("dashboardTrack");
   const dashboardPrev = document.getElementById("dashboardPrev");
   const dashboardNext = document.getElementById("dashboardNext");
@@ -8,6 +9,7 @@
   const totalNetEl = document.getElementById("totalNet");
 
   let dashboardCharts = [];
+  let desktopChart = null;
   let lastFiles = [];
   let currentSlide = 0;
 
@@ -112,6 +114,67 @@
   const destroyCharts = () => {
     dashboardCharts.forEach((chart) => chart.destroy());
     dashboardCharts = [];
+    if (desktopChart) {
+      desktopChart.destroy();
+      desktopChart = null;
+    }
+  };
+
+  const renderDesktopChart = (labels, incomeData, expensesData, netData) => {
+    if (!dashboardChartAll) {
+      return;
+    }
+
+    const isDesktop = window.matchMedia("(min-width: 992px)").matches;
+    if (!isDesktop) {
+      return;
+    }
+
+    desktopChart = new window.Chart(dashboardChartAll, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Ingresos",
+            data: incomeData,
+            backgroundColor: "#2e7d32",
+          },
+          {
+            label: "Gastos",
+            data: expensesData,
+            backgroundColor: "#c62828",
+          },
+          {
+            label: "Neto",
+            data: netData,
+            backgroundColor: "#005e2a",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) =>
+                `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`,
+            },
+          },
+        },
+        scales: {
+          y: {
+            ticks: {
+              callback: (value) => formatCurrency(value),
+            },
+          },
+        },
+      },
+    });
   };
 
   const renderSlide = (label, income, expenses, net) => {
@@ -199,6 +262,10 @@
 
       let totalIncome = 0;
       let totalExpenses = 0;
+      const labels = [];
+      const incomeData = [];
+      const expensesData = [];
+      const netData = [];
 
       for (const fileName of sortedFiles) {
         const movements = await fetchMovementsForFile(fileName);
@@ -216,8 +283,13 @@
         totalIncome += income;
         totalExpenses += expenses;
 
+        labels.push(formatMonthLabel(fileName));
+        incomeData.push(Number(income.toFixed(2)));
+        expensesData.push(Number(expenses.toFixed(2)));
+        netData.push(Number(net.toFixed(2)));
+
         renderSlide(
-          formatMonthLabel(fileName),
+          labels[labels.length - 1],
           Number(income.toFixed(2)),
           Number(expenses.toFixed(2)),
           Number(net.toFixed(2))
@@ -225,6 +297,7 @@
       }
 
       updateTotalsUI(totalIncome, totalExpenses, totalIncome - totalExpenses);
+      renderDesktopChart(labels, incomeData, expensesData, netData);
       updateSliderButtons();
       setDashboardStatus("Resumen actualizado.");
     } catch (error) {
