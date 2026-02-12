@@ -1,0 +1,19 @@
+{
+  "name": "mis-finanzas",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "build:css": "sass styles.scss styles.css",
+    "watch:css": "sass --watch styles.scss styles.css",
+    "dev": "concurrently \"npm run watch:css\" \"npm start\""
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "sass": "^1.97.3"
+  }
+}

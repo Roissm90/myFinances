@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mis Finanzas - Importar Excel</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="card">
+      <h1>Subir movimientos</h1>
+      <div class="controls">
+        <label class="field" for="monthSelect">
+          <p class="label-text">Mes</p>
+          <select id="monthSelect" required>
+            <option value="" selected>Selecciona un mes</option>
+            <option value="enero">Enero</option>
+            <option value="febrero">Febrero</option>
+            <option value="marzo">Marzo</option>
+            <option value="abril">Abril</option>
+            <option value="mayo">Mayo</option>
+            <option value="junio">Junio</option>
+            <option value="julio">Julio</option>
+            <option value="agosto">Agosto</option>
+            <option value="septiembre">Septiembre</option>
+            <option value="octubre">Octubre</option>
+            <option value="noviembre">Noviembre</option>
+            <option value="diciembre">Diciembre</option>
+          </select>
+        </label>
+        <div class="field">
+          <p class="label-text">Archivo</p>
+          <button id="importButton" type="button" disabled>
+            Importar Moviemientos (excel)
+          </button>
+          <input id="excelInput" type="file" accept=".xls,.xlsx" hidden />
+        </div>
+      </div>
+    </div>
+    <div class="card card-secondary">
+      <h2>Meses</h2>
+      <div class="list-wrap">
+        <ul id="uploadsList" class="uploads-list"></ul>
+      </div>
+    </div>
+    <div class="card card-terciary">
+        <div class="field">
+          <p class="label-text">Resumen</p>
+           <button id="downloadSummary" type="button" disabled>
+            Descargar Movimientos (excel)
+          </button>
+        </div>
+    </div>
+    <div id="deleteModal" class="modal" aria-hidden="true">
+      <div class="modal-overlay" data-close="true"></div>
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h3 id="modalTitle">Confirmar borrado</h3>
+        <p>Vas a borrar este archivo. Esta accion no se puede deshacer.</p>
+        <div class="modal-actions">
+          <button id="cancelDelete" type="button" class="modal-button">Cancelar</button>
+          <button id="confirmDelete" type="button" class="modal-button danger">
+            Borrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="movements.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
