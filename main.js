@@ -11,8 +11,12 @@ const addYearForm = document.getElementById("addYearForm");
 const addYearInput = document.getElementById("addYearInput");
 const addYearError = document.getElementById("addYearError");
 const cancelAddYear = document.getElementById("cancelAddYear");
+const replaceModal = document.getElementById("replaceModal");
+const cancelReplace = document.getElementById("cancelReplace");
+const confirmReplace = document.getElementById("confirmReplace");
 
 let selectedYear = new Date().getFullYear();
+let pendingUploadData = null;
 
 const HEADER_KEYS = [
   "fecha operacion",
@@ -218,6 +222,73 @@ const closeAddYearModal = () => {
   setAddYearError("");
 };
 
+const openReplaceModal = () => {
+  if (!replaceModal) {
+    return;
+  }
+  replaceModal.classList.add("is-open");
+  replaceModal.setAttribute("aria-hidden", "false");
+};
+
+const closeReplaceModal = () => {
+  if (!replaceModal) {
+    return;
+  }
+  replaceModal.classList.remove("is-open");
+  replaceModal.setAttribute("aria-hidden", "true");
+  pendingUploadData = null;
+};
+
+const uploadMovements = async (movements, month, year) => {
+  try {
+    const response = await fetch("/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: movements,
+        month: month,
+        year: year,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al subir el JSON");
+    }
+
+    const result = await response.json();
+    console.log("Archivo guardado:", result);
+    await fetchUploads();
+  } catch (error) {
+    console.error(error);
+    console.warn(
+      "No se pudo guardar el JSON. Revisa la consola para mas detalles."
+    );
+  }
+};
+
+const checkIfExistsAndUpload = async (movements, month, year) => {
+  try {
+    const response = await fetch(`/check-exists?month=${encodeURIComponent(month)}&year=${year}`);
+    if (!response.ok) {
+      throw new Error("Error al verificar archivo existente");
+    }
+    
+    const result = await response.json();
+    
+    if (result.exists) {
+      pendingUploadData = { movements, month, year };
+      openReplaceModal();
+    } else {
+      await uploadMovements(movements, month, year);
+    }
+  } catch (error) {
+    console.error(error);
+    await uploadMovements(movements, month, year);
+  }
+};
+
 importButton.addEventListener("click", () => {
   if (!monthSelect.value) {
     console.warn("Selecciona un mes antes de subir el Excel.");
@@ -292,7 +363,34 @@ document.addEventListener("keydown", (event) => {
   if (addYearModal?.classList.contains("is-open")) {
     closeAddYearModal();
   }
+  if (replaceModal?.classList.contains("is-open")) {
+    closeReplaceModal();
+  }
 });
+
+if (cancelReplace) {
+  cancelReplace.addEventListener("click", closeReplaceModal);
+}
+
+if (confirmReplace) {
+  confirmReplace.addEventListener("click", async () => {
+    if (!pendingUploadData) {
+      closeReplaceModal();
+      return;
+    }
+    
+    const { movements, month, year } = pendingUploadData;
+    closeReplaceModal();
+    await uploadMovements(movements, month, year);
+  });
+}
+
+if (replaceModal) {
+  const overlay = replaceModal.querySelector("[data-close='true']");
+  if (overlay) {
+    overlay.addEventListener("click", closeReplaceModal);
+  }
+}
 
 if (downloadSummary) {
   downloadSummary.addEventListener("click", async () => {
@@ -353,34 +451,8 @@ excelInput.addEventListener("change", (event) => {
 
     console.log("Movimientos:", movements);
 
-    try {
-      const response = await fetch("/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data: movements,
-          month: monthSelect.value,
-          year: selectedYear,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al subir el JSON");
-      }
-
-      const result = await response.json();
-      console.log("Archivo guardado:", result);
-      await fetchUploads();
-    } catch (error) {
-      console.error(error);
-      console.warn(
-        "No se pudo guardar el JSON. Revisa la consola para mas detalles."
-      );
-    } finally {
-      excelInput.value = "";
-    }
+    await checkIfExistsAndUpload(movements, monthSelect.value, selectedYear);
+    excelInput.value = "";
   };
   reader.readAsArrayBuffer(file);
 });

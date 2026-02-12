@@ -116,6 +116,19 @@
         </div>
       </div>
     </div>
+    <div id="replaceModal" class="modal" aria-hidden="true">
+      <div class="modal-overlay" data-close="true"></div>
+      <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="replaceModalTitle">
+        <h3 id="replaceModalTitle">Ya existe archivo para este mes</h3>
+        <p id="replaceModalMessage">Ya existe un archivo para este mes y año. ¿Deseas reemplazarlo?</p>
+        <div class="modal-actions">
+          <button id="cancelReplace" type="button" class="modal-button">Cancelar</button>
+          <button id="confirmReplace" type="button" class="modal-button danger">
+            Reemplazar
+          </button>
+        </div>
+      </div>
+    </div>
     <form class="logout-fab" method="post" action="/logout">
       <button type="submit" class="logout-button" aria-label="Cerrar sesión">
         <span class="logout-icon" aria-hidden="true"></span>

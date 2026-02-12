@@ -325,6 +325,32 @@ const writeMovements = async (month, year, encryptedMovements) => {
   return buildFileName(monthKey, normalizedYear);
 };
 
+app.get("/check-exists", async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    
+    if (typeof month !== "string" || month.trim() === "") {
+      return res.status(400).json({ error: "Mes requerido" });
+    }
+
+    if (!requireMongo(res)) {
+      return;
+    }
+
+    const monthKey = sanitizeMonth(month);
+    const normalizedYear = normalizeYear(year) ?? getCurrentYear();
+    
+    const doc = await movementsCollection.findOne({
+      monthKey,
+      year: normalizedYear,
+    });
+
+    return res.json({ exists: !!doc });
+  } catch (error) {
+    return res.status(500).json({ error: "Error al verificar archivo" });
+  }
+});
+
 app.post("/upload", async (req, res) => {
   try {
     const { data, month, year } = req.body;
