@@ -14,8 +14,8 @@ body {
 }
 body .card {
   max-width: 991px;
-  margin: 2rem auto 0;
-  padding: 2rem 2rem 1rem;
+  margin: 0 auto 0;
+  padding: 1rem 2rem 1rem;
 }
 body .card h1 {
   font-size: 2rem;
@@ -242,6 +242,7 @@ body .card .year-header {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 1rem;
 }
 body .card .year-header button {
   padding: 0.45rem 0.9rem;
@@ -260,8 +261,10 @@ body .card .year-label {
 }
 body .card .year-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
+  overflow-x: auto;
+  justify-content: flex-start;
 }
 body .card .year-item {
   display: inline-flex;
@@ -293,9 +296,9 @@ body .card.card-dashboard h2 {
   }
 }
 body .card .dashboard-status {
-  margin-bottom: 1rem;
   font-size: 0.95rem;
   color: #333;
+  display: none;
 }
 @media (max-width: 640px) {
   body .card .dashboard-status {
@@ -412,13 +415,22 @@ body .card .stat-value {
   font-weight: 700;
   color: #005e2a;
 }
-body .card .logout-fab {
+body .card.card-terciary {
+  margin-top: 0;
+  padding-top: 1rem;
+}
+@media (max-width: 640px) {
+  body .card.card-terciary {
+    padding-top: 0;
+  }
+}
+body .logout-fab {
   position: fixed;
   right: 1.25rem;
   bottom: 1.25rem;
   z-index: 50;
 }
-body .card .logout-button {
+body .logout-button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -431,7 +443,7 @@ body .card .logout-button {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
   cursor: pointer;
 }
-body .card .logout-icon {
+body .logout-icon {
   width: 18px;
   height: 18px;
   display: inline-block;
@@ -440,24 +452,15 @@ body .card .logout-icon {
   background-repeat: no-repeat;
 }
 @media (max-width: 640px) {
-  body .card .logout-button {
+  body .logout-button {
     padding: 0.7rem;
   }
-  body .card .logout-text {
+  body .logout-text {
     display: none;
   }
 }
-body .card .logout-button:hover {
+body .logout-button:hover {
   background: #f2f7f4;
-}
-body .card.card-terciary {
-  margin-top: 0;
-  padding-top: 1rem;
-}
-@media (max-width: 640px) {
-  body .card.card-terciary {
-    padding-top: 0;
-  }
 }
 
 .modal {

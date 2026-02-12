@@ -32,8 +32,8 @@ body {
 
   .card {
     max-width: 991px;
-    margin: 2rem auto 0;
-    padding: 2rem 2rem 1rem;
+    margin: 0 auto 0;
+    padding: 1rem 2rem 1rem;
 
     h1 {
       font-size: 2rem;
@@ -285,6 +285,7 @@ body {
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      margin-bottom: 1rem;
     }
 
     .year-header button {
@@ -306,8 +307,10 @@ body {
 
     .year-list {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 0.5rem;
+      overflow-x: auto;
+      justify-content: flex-start;
     }
 
     .year-item {
@@ -344,9 +347,10 @@ body {
     }
 
     .dashboard-status {
-      margin-bottom: 1rem;
+      //margin-bottom: 1rem;
       font-size: 0.95rem;
       color: $secondary-color-text;
+      display: none;
 
       @media (max-width: 640px) {
         font-size: 0.85rem;
@@ -475,6 +479,15 @@ body {
       color: $main-color-bg;
     }
 
+    &.card-terciary {
+      margin-top: 0;
+      padding-top: 1rem;
+
+      @media (max-width: 640px) {
+        padding-top: 0;
+      }
+    }
+  }
 
   .logout-fab {
     position: fixed;
@@ -518,15 +531,6 @@ body {
 
   .logout-button:hover {
     background: #f2f7f4;
-  }
-    &.card-terciary {
-      margin-top: 0;
-      padding-top: 1rem;
-
-      @media (max-width: 640px) {
-        padding-top: 0;
-      }
-    }
   }
 }
 
