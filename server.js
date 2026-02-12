@@ -11,6 +11,12 @@ const port = 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB || "misfinanzas";
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "";
+const APP_PASSWORD = process.env.APP_PASSWORD || "";
+
+const AUTH_COOKIE = "app_auth";
+const AUTH_TOKEN = APP_PASSWORD
+  ? crypto.createHash("sha256").update(APP_PASSWORD).digest("hex")
+  : "";
 
 let mongoDb = null;
 let movementsCollection = null;
@@ -31,7 +37,112 @@ const getEncryptionKey = () => {
 };
 
 app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: false }));
+
+const getCookieValue = (req, name) => {
+  const raw = req.headers.cookie || "";
+  const parts = raw.split(";").map((item) => item.trim());
+  const match = parts.find((item) => item.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split("=").slice(1).join("=")) : "";
+};
+
+const isAuthenticated = (req) => {
+  if (!APP_PASSWORD) {
+    return true;
+  }
+  const token = getCookieValue(req, AUTH_COOKIE);
+  if (!token || !AUTH_TOKEN) {
+    return false;
+  }
+  return token === AUTH_TOKEN;
+};
+
+const renderLoginPage = (message) => `<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mis Finanzas - Login</title>
+    <style>
+      body { font-family: system-ui, sans-serif; background: #afcfbd; margin: 0; }
+      .wrap { min-height: 100vh; display: grid; place-items: center; padding: 2rem; }
+      .card { width: min(420px, 100%); background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+      h1 { margin: 0 0 1rem; color: #333; font-size: 1.5rem; }
+      label { display: block; margin-bottom: 0.35rem; color: #333; }
+      input { width: 100%; padding: 0.65rem 0.75rem; border: 1px solid #005e2a; border-radius: 6px; font-size: 1rem; }
+      button { width: 100%; margin-top: 1rem; padding: 0.65rem; background: #005e2a; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+      .message { margin: 0 0 1rem; color: #c62828; font-size: 0.95rem; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <form class="card" method="post" action="/login">
+        <h1>Acceso</h1>
+        ${message ? `<p class="message">${message}</p>` : ""}
+        <label for="password">Contrasena</label>
+        <input id="password" name="password" type="password" required />
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </body>
+</html>`;
+
+const authGuard = (req, res, next) => {
+  if (!APP_PASSWORD) {
+    return next();
+  }
+  const pathName = req.path;
+  if (pathName === "/login" || pathName === "/logout" || pathName === "/health") {
+    return next();
+  }
+  if (pathName === "/favicon.svg") {
+    return next();
+  }
+  if (isAuthenticated(req)) {
+    return next();
+  }
+
+  const isApiPath =
+    pathName.startsWith("/upload") ||
+    pathName.startsWith("/uploads") ||
+    pathName.startsWith("/export-summary");
+
+  if (isApiPath || req.headers.accept?.includes("application/json")) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
+
+  return res.redirect("/login");
+};
+
+app.use(authGuard);
 app.use(express.static(__dirname));
+
+app.get("/login", (req, res) => {
+  if (isAuthenticated(req)) {
+    return res.redirect("/");
+  }
+  return res.send(renderLoginPage(""));
+});
+
+app.post("/login", (req, res) => {
+  if (!APP_PASSWORD) {
+    return res.redirect("/");
+  }
+  const password = String(req.body?.password || "");
+  if (password === APP_PASSWORD) {
+    res.cookie(AUTH_COOKIE, AUTH_TOKEN, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
+    return res.redirect("/");
+  }
+  return res.status(401).send(renderLoginPage("Contrasena incorrecta"));
+});
+
+app.post("/logout", (_req, res) => {
+  res.clearCookie(AUTH_COOKIE);
+  return res.redirect("/login");
+});
 
 const sanitizeMonth = (value) =>
   String(value ?? "")
