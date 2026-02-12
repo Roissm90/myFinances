@@ -7,7 +7,7 @@ const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const MONGODB_DB = process.env.MONGODB_DB || "misfinanzas";
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "";

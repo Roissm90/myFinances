@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mis-finanzas
+    env: node
+    buildCommand: npm install && npm run build:css
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: APP_PASSWORD
+        sync: false
