@@ -1,8 +1,5 @@
 Categorías y etiquetas
 Clasificar movimientos (supermercado, ocio, etc.) con resumen por categoría.
 
-Autenticación simple
-Login básico para proteger tus datos (JWT o sesión).
-
 Mejoras UX
 Buscador instantáneo, ordenaciones por columnas, paginado.
