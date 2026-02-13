@@ -198,6 +198,8 @@ body .card.card-secondary .uploads-list .movements-panel {
   background: #fff;
   color: #333;
   font-size: 0.85rem;
+  max-height: 70dvh;
+  overflow-y: auto;
 }
 body .card.card-secondary .uploads-list .movements-list {
   display: grid;

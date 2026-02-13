@@ -221,6 +221,8 @@ body {
           background: #fff;
           color: $secondary-color-text;
           font-size: 0.85rem;
+          max-height: 70dvh;
+          overflow-y: auto;
         }
 
         .movements-list {
