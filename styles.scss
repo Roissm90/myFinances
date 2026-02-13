@@ -28,11 +28,17 @@ $negative-color-text: #c62828;
 body {
   background-color: $secondary-color-bg;
   width: 100vw;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 121.2px);
+  @media (max-width: 991px) {
+      min-height: calc(100dvh - 105.2px);
+    }
 
   .card {
     max-width: 991px;
-    margin: 110px auto 0;
+    margin: 121.2px auto 0;
+    @media (max-width: 991px) {
+      margin: 105.2px auto 0;
+    }
     padding: 1rem 2rem 1rem;
 
     h1 {
@@ -557,9 +563,13 @@ body {
 
   .logout-fab {
     position: fixed;
-    right: 1.25rem;
+    right: 2rem;
     bottom: 1.25rem;
     z-index: 50;
+
+    @media (min-width: 1281px) {
+      right: calc(1.25rem + (100vw - 1280px) / 2);
+    }
   }
 
   .logout-button {
@@ -585,7 +595,7 @@ body {
     background-repeat: no-repeat;
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 991px) {
     .logout-button {
       padding: 0.7rem;
     }

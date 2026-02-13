@@ -254,7 +254,7 @@ const toggleMovements = async (button, fileName) => {
   const $panel = window.jQuery(panel);
 
   if ($panel.is(":visible")) {
-    $panel.slideUp(200);
+    $panel.slideUp(350);
     button.setAttribute("aria-expanded", "false");
     return;
   }
@@ -272,7 +272,7 @@ const toggleMovements = async (button, fileName) => {
     }
   }
 
-  $panel.stop(true, true).hide().slideDown(200);
+  $panel.stop(true, true).hide().slideDown(350);
   button.setAttribute("aria-expanded", "true");
 };
 
@@ -421,7 +421,66 @@ const setupUploadsList = (listEl) => {
     if (!button) {
       return;
     }
-    toggleMovements(button, button.dataset.file);
+
+    // Cerrar todos los paneles abiertos antes de abrir el seleccionado
+    const allPanels = listEl.querySelectorAll(".movements-panel");
+    let closePromises = [];
+    allPanels.forEach(panel => {
+      if (window.jQuery && window.jQuery(panel).is(":visible")) {
+        closePromises.push(new Promise(resolve => {
+          window.jQuery(panel).slideUp(200, resolve);
+          const parentLi = panel.closest("li");
+          if (parentLi) {
+            const btn = parentLi.querySelector(".upload-button");
+            if (btn) {
+              btn.setAttribute("aria-expanded", "false");
+            }
+          }
+        }));
+      }
+    });
+
+    Promise.all(closePromises).then(() => {
+      toggleMovements(button, button.dataset.file).then(() => {
+        // Scroll al elemento desplegado con offset según header fijo
+        const li = button.closest("li");
+        if (li) {
+          // Buscar el header fijo
+          const header = document.querySelector(".card-years");
+          let offset = 0;
+          if (header) {
+            offset = header.offsetHeight;
+          } else {
+            offset = window.innerWidth > 991 ? 125 : 110;
+          }
+          // Añadir margen extra si quieres
+          offset += 16;
+          const rect = li.getBoundingClientRect();
+          const scrollY = window.scrollY || window.pageYOffset;
+          const targetY = rect.top + scrollY - offset;
+          // Scroll suave con easing
+          const duration = 400;
+          const start = window.scrollY || window.pageYOffset;
+          const change = targetY - start;
+          let currentTime = 0;
+          const animateScroll = () => {
+            currentTime += 20;
+            const val = easeInOutQuad(currentTime, start, change, duration);
+            window.scrollTo(0, val);
+            if (currentTime < duration) {
+              setTimeout(animateScroll, 20);
+            }
+          };
+          function easeInOutQuad(t, b, c, d) {
+            t /= d / 2;
+            if (t < 1) return (c / 2) * t * t + b;
+            t--;
+            return (-c / 2) * (t * (t - 2) - 1) + b;
+          }
+          animateScroll();
+        }
+      });
+    });
   });
 };
 
