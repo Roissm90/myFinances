@@ -422,14 +422,23 @@ const setupUploadsList = (listEl) => {
       return;
     }
 
-    // Cerrar todos los paneles abiertos antes de abrir el seleccionado
+    const li = button.closest("li");
+    if (!li) return;
+    let panel = li.querySelector(".movements-panel");
+    const $panel = panel ? window.jQuery(panel) : null;
+    // Si el panel actual está abierto, solo cerrarlo y salir
+    if ($panel && $panel.is(":visible")) {
+      toggleMovements(button, button.dataset.file); // solo cierra
+      return;
+    }
+    // Si el panel está cerrado, cerrar los demás y abrir el actual con scroll
     const allPanels = listEl.querySelectorAll(".movements-panel");
     let closePromises = [];
-    allPanels.forEach(panel => {
-      if (window.jQuery && window.jQuery(panel).is(":visible")) {
+    allPanels.forEach(otherPanel => {
+      if (otherPanel !== panel && window.jQuery && window.jQuery(otherPanel).is(":visible")) {
         closePromises.push(new Promise(resolve => {
-          window.jQuery(panel).slideUp(200, resolve);
-          const parentLi = panel.closest("li");
+          window.jQuery(otherPanel).slideUp(200, resolve);
+          const parentLi = otherPanel.closest("li");
           if (parentLi) {
             const btn = parentLi.querySelector(".upload-button");
             if (btn) {
@@ -442,43 +451,36 @@ const setupUploadsList = (listEl) => {
 
     Promise.all(closePromises).then(() => {
       toggleMovements(button, button.dataset.file).then(() => {
-        // Scroll al elemento desplegado con offset según header fijo
-        const li = button.closest("li");
-        if (li) {
-          // Buscar el header fijo
-          const header = document.querySelector(".card-years");
-          let offset = 0;
-          if (header) {
-            offset = header.offsetHeight;
-          } else {
-            offset = window.innerWidth > 991 ? 125 : 110;
-          }
-          // Añadir margen extra si quieres
-          offset += 16;
-          const rect = li.getBoundingClientRect();
-          const scrollY = window.scrollY || window.pageYOffset;
-          const targetY = rect.top + scrollY - offset;
-          // Scroll suave con easing
-          const duration = 400;
-          const start = window.scrollY || window.pageYOffset;
-          const change = targetY - start;
-          let currentTime = 0;
-          const animateScroll = () => {
-            currentTime += 20;
-            const val = easeInOutQuad(currentTime, start, change, duration);
-            window.scrollTo(0, val);
-            if (currentTime < duration) {
-              setTimeout(animateScroll, 20);
-            }
-          };
-          function easeInOutQuad(t, b, c, d) {
-            t /= d / 2;
-            if (t < 1) return (c / 2) * t * t + b;
-            t--;
-            return (-c / 2) * (t * (t - 2) - 1) + b;
-          }
-          animateScroll();
+        const header = document.querySelector(".card-years");
+        let offset = 0;
+        if (header) {
+          offset = header.offsetHeight;
+        } else {
+          offset = window.innerWidth > 991 ? 125 : 110;
         }
+        offset += 16;
+        const rect = li.getBoundingClientRect();
+        const scrollY = window.scrollY || window.pageYOffset;
+        const targetY = rect.top + scrollY - offset;
+        const duration = 400;
+        const start = window.scrollY || window.pageYOffset;
+        const change = targetY - start;
+        let currentTime = 0;
+        const animateScroll = () => {
+          currentTime += 20;
+          const val = easeInOutQuad(currentTime, start, change, duration);
+          window.scrollTo(0, val);
+          if (currentTime < duration) {
+            setTimeout(animateScroll, 20);
+          }
+        };
+        function easeInOutQuad(t, b, c, d) {
+          t /= d / 2;
+          if (t < 1) return (c / 2) * t * t + b;
+          t--;
+          return (-c / 2) * (t * (t - 2) - 1) + b;
+        }
+        animateScroll();
       });
     });
   });
