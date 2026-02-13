@@ -12,6 +12,7 @@
   let desktopChart = null;
   let lastFiles = [];
   let currentSlide = 0;
+  let swiper = null;
 
   const MONTH_ORDER = [
     "enero",
@@ -180,7 +181,7 @@
 
   const renderSlide = (label, income, expenses, net) => {
     const slide = document.createElement("div");
-    slide.className = "dashboard-slide";
+    slide.className = "swiper-slide dashboard-slide";
 
     const title = document.createElement("p");
     title.className = "dashboard-slide-title";
@@ -260,6 +261,12 @@
       destroyCharts();
       dashboardTrack.innerHTML = "";
       currentSlide = 0;
+      
+      // Destroy previous swiper instance
+      if (swiper) {
+        swiper.destroy(true, true);
+        swiper = null;
+      }
 
       let totalIncome = 0;
       let totalExpenses = 0;
@@ -299,6 +306,53 @@
 
       updateTotalsUI(totalIncome, totalExpenses, totalIncome - totalExpenses);
       renderDesktopChart(labels, incomeData, expensesData, netData);
+      
+      // Inicializar Swiper solo si hay al menos 2 slides
+      if (window.Swiper && dashboardTrack.children.length > 1) {
+        swiper = new window.Swiper('#dashboardSwiper', {
+          slidesPerView: 3.25,
+          spaceBetween: 16,
+          centeredSlides: false,
+          grabCursor: true,
+          touchRatio: 1,
+          threshold: 10,
+          resistance: true,
+          pagination: {
+            el: '#dashboardSwiperPagination',
+            clickable: true,
+            dynamicBullets: true
+          },
+          resistanceRatio: 0.85,
+          speed: 500,
+          breakpoints: {
+            0: {
+              slidesPerView: 1.25
+            },
+            577: {
+              slidesPerView: 2
+            },
+            768: {
+              slidesPerView: dashboardTrack.children.length >= 3 ? 3 : 2
+            },
+          },
+          on: {
+            slideChange: function() {
+              currentSlide = this.activeIndex;
+              updateSliderButtons();
+            }
+          }
+        });
+      } else {
+        // Si solo hay una slide, centrarla y quitar Swiper
+        //dashboardTrack.style.display = 'flex';
+        //dashboardTrack.style.justifyContent = 'center';
+        // Limpiar paginación si existe
+        const paginationEl = document.getElementById('dashboardSwiperPagination');
+        if (paginationEl) {
+          paginationEl.innerHTML = '';
+        }
+      }
+      
       updateSliderButtons();
       setDashboardStatus("Resumen actualizado.");
     } catch (error) {
@@ -312,7 +366,7 @@
   };
 
   const updateSliderButtons = () => {
-    const slideCount = dashboardTrack?.children?.length || 0;
+    const slideCount = swiper ? swiper.slides.length : 0;
     if (dashboardPrev) {
       dashboardPrev.disabled = currentSlide <= 0;
     }
@@ -322,19 +376,11 @@
   };
 
   const scrollToSlide = (index) => {
-    if (!dashboardTrack) {
-      return;
-    }
-    const slides = Array.from(dashboardTrack.children);
-    const target = slides[index];
-    if (!target) {
+    if (!swiper) {
       return;
     }
     currentSlide = index;
-    dashboardTrack.scrollTo({
-      left: target.offsetLeft,
-      behavior: "smooth",
-    });
+    swiper.slideTo(index);
     updateSliderButtons();
   };
 
@@ -346,7 +392,7 @@
 
   if (dashboardNext) {
     dashboardNext.addEventListener("click", () => {
-      const slideCount = dashboardTrack?.children?.length || 0;
+      const slideCount = swiper ? swiper.slides.length : 0;
       scrollToSlide(Math.min(slideCount - 1, currentSlide + 1));
     });
   }

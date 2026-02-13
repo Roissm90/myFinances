@@ -361,6 +361,7 @@ body {
 
     &.card-dashboard {
       margin-top: 0;
+      overflow-x: hidden;
 
       h2 {
         font-size: 1.5rem;
@@ -408,11 +409,12 @@ body {
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 3.5rem;
       position: relative;
     }
 
     .slider-button {
+      display: none;
       width: 24px;
       height: 24px;
       border-radius: 50%;
@@ -456,10 +458,47 @@ body {
       grid-auto-flow: column;
       grid-auto-columns: 100%;
       gap: 1rem;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
       scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
       width: 100%;
       margin: 0 auto;
+      cursor: grab;
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+      
+      &::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
+      }
+      
+      &:active {
+        cursor: grabbing;
+      }
+    }
+
+    .swiper {
+      width: 100%;
+      overflow: visible;
+    }
+
+    .swiper-wrapper {
+      display: flex;
+    }
+
+    .swiper-pagination {
+      bottom: -2rem;
+
+      .swiper-pagination-bullet {
+        width: 10px;
+        height: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        opacity: 1;
+
+        &.swiper-pagination-bullet-active {
+          background: $main-color-bg;
+        }
+      }
     }
 
     .dashboard-slide {
