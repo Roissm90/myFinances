@@ -18,6 +18,16 @@ const confirmReplace = document.getElementById("confirmReplace");
 let selectedYear = new Date().getFullYear();
 let pendingUploadData = null;
 
+// Mostrar saludo con el nombre de usuario
+fetch('/api/app-username')
+  .then(res => res.json())
+  .then(data => {
+    const greeting = document.getElementById('userGreeting');
+    if (greeting && data.username) {
+      greeting.textContent = `Hola, ${data.username}`;
+    }
+  });
+
 const HEADER_KEYS = [
   "fecha operacion",
   "fecha valor",

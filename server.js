@@ -40,6 +40,7 @@ const getEncryptionKey = () => {
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: false }));
 
+
 const getCookieValue = (req, name) => {
   const raw = req.headers.cookie || "";
   const parts = raw.split(";").map((item) => item.trim());
@@ -117,6 +118,12 @@ const authGuard = (req, res, next) => {
 };
 
 app.use(authGuard);
+app.use(authGuard);
+
+// Endpoint para devolver el nombre de usuario (después del authGuard, antes del static)
+app.get('/api/app-username', (req, res) => {
+  res.json({ username: process.env.APP_USERNAME || '' });
+});
 app.use(express.static(__dirname));
 
 app.get("/login", (req, res) => {
